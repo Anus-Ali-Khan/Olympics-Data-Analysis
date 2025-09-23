@@ -52,3 +52,10 @@ def conuntry_year_list(df):
     country.insert(0,'Overall')
 
     return years,country
+
+
+def data_over_time(df,col):
+
+    nations_over_time = df.drop_duplicates(['Year',col])['Year'].value_counts().reset_index().sort_values('count')
+    nations_over_time.rename(columns={'count': col, 'Year': 'Edition'},inplace=True)
+    return nations_over_time    

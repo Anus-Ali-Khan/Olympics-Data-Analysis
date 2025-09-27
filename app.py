@@ -4,6 +4,7 @@ import preprocessor, helper
 import plotly.express as px
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.figure_factory as ff
 
 df = pd.read_csv('athlete_events.csv')
 region_df = pd.read_csv('noc_regions.csv')
@@ -127,4 +128,32 @@ if user_menu == 'Country-wise Analysis':
     st.title("Top 10 athletes of " + selected_country)
     top10_df = helper.most_successful_countrywise(df,selected_country)
     st.table(top10_df)
+    
+if user_menu == 'Athlete wise Analysis':
+    athlete_df = df.drop_duplicates(subset=['Name','region'])
+
+    x1  = athlete_df['Age'].dropna()
+    x2 = athlete_df[athlete_df['Medal'] == 'Gold']['Age'].dropna()
+    x3 = athlete_df[athlete_df['Medal'] == 'Silver']['Age'].dropna()
+    x4 = athlete_df[athlete_df['Medal'] == 'Bronze']['Age'].dropna()
+
+    fig = ff.create_distplot([x1, x2, x3, x4],['Overall Age', 'Gold Medalist','Silver Medalist', 'Bronze Medalist'],show_hist=False,show_rug=False)
+    fig.update_layout(autosize =False, width=1000, height=600)
+
+    st.title("Distribution of Age")
+    st.plotly_chart(fig)
+
+    x= []
+    name = []
+    famous_sports = ['Bsaketball', 'judo', 'Football', 'Tug-of-war', 'Ath;etics', 'Swimmimg', 'Badminton', 'Sailing', 'Gymnastics', 'Art Competitions', 'Handball', 'Weightlifting', 'Wrestling', 'Water Polo', 'Hockey', 'Rowing', 'Fencing', 'Shooting', 'Boxing', 'Taekwondo', 'Cycling', 'Diving', 'Canoeing', 'Tennis', 'Golf', 'Softball', 'Archery', 'Volleyball', 'Synchronized Swimmimg', 'Table Tennis', 'Baseball', 'Rhythmic Gymnastics', 'Rugby Sevens', 'Beach Volleyball', 'Triathlon', 'Rugby', 'Polo', 'Ice hockey']
+
+    for sport in famous_sports:
+        temp_df = athlete_df[athlete_df['Sport'] == sport]
+        x.append(temp_df[temp_df['Medal'] == 'Gold']['Age'].dropna())
+        name.append(sport)
+
+    fig = ff.create_distplot(x, name, show_hist=False, show_rug=False)
+    fig.update_layout(autosize=False, width=1000, height=600)
+    st.title("Distribution of Age wrt Sports(Gold Medalist)")
+    st.plotly_chart(fig)
     

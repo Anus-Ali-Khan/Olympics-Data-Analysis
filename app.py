@@ -12,6 +12,7 @@ region_df = pd.read_csv('noc_regions.csv')
 df = preprocessor.preprocess(df,region_df)
 
 st.sidebar.title('Olympics Analysis') 
+st.sidebar.image('https://colorlib.com/wp/wp-content/uploads/sites/2/olympic-logo-2024.png')
 
 user_menu = st.sidebar.radio(
     'Select an Option',
@@ -145,15 +146,35 @@ if user_menu == 'Athlete wise Analysis':
 
     x= []
     name = []
-    famous_sports = ['Bsaketball', 'judo', 'Football', 'Tug-of-war', 'Ath;etics', 'Swimmimg', 'Badminton', 'Sailing', 'Gymnastics', 'Art Competitions', 'Handball', 'Weightlifting', 'Wrestling', 'Water Polo', 'Hockey', 'Rowing', 'Fencing', 'Shooting', 'Boxing', 'Taekwondo', 'Cycling', 'Diving', 'Canoeing', 'Tennis', 'Golf', 'Softball', 'Archery', 'Volleyball', 'Synchronized Swimmimg', 'Table Tennis', 'Baseball', 'Rhythmic Gymnastics', 'Rugby Sevens', 'Beach Volleyball', 'Triathlon', 'Rugby', 'Polo', 'Ice hockey']
+    famous_sports = ['Basketball', 'Judo', 'Football', 'Tug-of-War', 'Athletics', 'Swimming', 'Badminton', 'Sailing', 'Gymnastics', 'Art Competitions', 'Handball', 'Weightlifting', 'Wrestling', 'Water Polo', 'Hockey', 'Rowing', 'Fencing', 'Shooting', 'Boxing', 'Taekwondo', 'Cycling', 'Diving', 'Canoeing', 'Tennis', 'Golf', 'Softball', 'Archery', 'Volleyball', 'Synchronized Swimming', 'Table Tennis', 'Baseball', 'Rhythmic Gymnastics', 'Rugby Sevens', 'Beach Volleyball', 'Triathlon', 'Rugby', 'Polo', 'Ice hockey']
 
     for sport in famous_sports:
         temp_df = athlete_df[athlete_df['Sport'] == sport]
-        x.append(temp_df[temp_df['Medal'] == 'Gold']['Age'].dropna())
-        name.append(sport)
+        ages = temp_df[temp_df['Medal'] == 'Gold']['Age'].dropna().tolist()
+        if len(ages)>0:
+            x.append(ages)
+            name.append(sport)
 
     fig = ff.create_distplot(x, name, show_hist=False, show_rug=False)
     fig.update_layout(autosize=False, width=1000, height=600)
     st.title("Distribution of Age wrt Sports(Gold Medalist)")
+    st.plotly_chart(fig)
+
+    sport_list = df['Sport'].unique().tolist()
+    sport_list.sort()
+    sport_list.insert(0,'Overall')
+
+
+    st.title('Height vs Weight')
+    selected_sport = st.selectbox('Select a Sport',sport_list)
+    temp_df = helper.weight_v_height(df,selected_sport)
+    fig,ax = plt.subplots()
+    ax = sns.scatterplot(data=temp_df, x=temp_df['Weight'], y=temp_df['Height'], hue=temp_df['Medal'],style=temp_df['Sex'],s=60)
+    st.pyplot(fig)
+
+    st.title('Men vs Women Paticipation over the Years')
+    final = helper.men_vs_women(df)
+    fig = px.line(final, x="Year", y=["Male", "Female"])
+    fig.update_layout(autosize =False, width=1000, height=600)
     st.plotly_chart(fig)
     
